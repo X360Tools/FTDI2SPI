@@ -8,13 +8,14 @@
 //#include <process.h>
 //#include <stdio.h>
 
-#define APP_NAME "SQUIRTER" 
-#define APP_VERSION "0.7 beta" 
+#define APP_NAME "Squirter" 
+#define APP_VERSION "J-Runner" 
 
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
-#define PRINT_PROGRESS printf( "\r%0.1f%%", ((block_flash-StartBlock)*100)/(float)(block_flash_max-StartBlock) )
+#define PRINT_PROGRESS printf( "\r%0.1f%%", ((block_flash-StartBlock)*100)/(float)(block_flash_max-StartBlock) ) // unused, but lets leave it here
+#define PRINT_BLOCKS printf( "\rBlock: %X", (block_flash/32))
                      
 #include <iostream>
 #include <fstream>
@@ -174,9 +175,9 @@ int _tmain( int argc, _TCHAR* argv[] )
 	if( EraseEnable ) {
 		for( block_flash=StartBlock; block_flash<block_flash_max; block_flash+=Sfc.PageCountInBlock ) {
 			FlashDataErase( block_flash );
-			PRINT_PROGRESS;  				
+			PRINT_BLOCKS;
 		}
-		PRINT_PROGRESS; 
+		PRINT_BLOCKS;
 	}
 	else if( WriteEnable ) {
 		FILE *fileW = fopen( FileName, "rb" );
@@ -209,7 +210,7 @@ int _tmain( int argc, _TCHAR* argv[] )
 		addr_raw = 0;
 		for( block_flash=StartBlock; block_flash<End_Block; ++block_flash ) {
 			if( (block_flash%64)==0 || block_flash==StartBlock ) {
-				printf( "\r%0.1f%%", ((block_flash-StartBlock)*100)/(float)(End_Block-StartBlock) ); 
+				PRINT_BLOCKS;
 			}
 
 			if( PatchECCEnable )
@@ -219,7 +220,7 @@ int _tmain( int argc, _TCHAR* argv[] )
 
 			addr_raw+=block_size;
 		}
-		printf( "\r%0.1f%%", ((block_flash-StartBlock)*100)/(float)(End_Block-StartBlock) ); 
+		PRINT_BLOCKS;
 
 		fclose( fileW );
 		free( flash_xbox );
@@ -250,12 +251,12 @@ int _tmain( int argc, _TCHAR* argv[] )
 		fseek (fileR , 0L , SEEK_SET);
 
 		printf( "Start Read NAND:\n" );
-		addr_raw = 0;
+		addr_raw = 0;\
 		for( block_flash=StartBlock; block_flash<block_flash_max; ++block_flash ) {
 			FlashDataRead( &flash_xbox[addr_raw], block_flash, block_size );
 			
 			if( (block_flash%64)==0 && (block_flash!=0) ) {
-				PRINT_PROGRESS; // Do the things to get current block
+				PRINT_BLOCKS;
 			}
 
 			addr_raw+=block_size;
@@ -274,7 +275,7 @@ int _tmain( int argc, _TCHAR* argv[] )
 			}
 		}
 
-		PRINT_PROGRESS; 
+		PRINT_BLOCKS;
  		fclose( fileR );
 		free( flash_xbox );
 
