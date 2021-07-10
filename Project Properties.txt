@@ -1,0 +1,3 @@
+Advanced Character Set -> Multi'
+
+C/C++ Preprocessor Preprocessor Definitions Edit -> add _CRT_SECURE_NO_WARNINGS
