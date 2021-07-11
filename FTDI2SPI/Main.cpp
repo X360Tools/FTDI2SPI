@@ -24,6 +24,7 @@ using namespace std;
 unsigned int block_flash = 0;
 unsigned int block_size;
 unsigned int flashConfig = 0;
+unsigned int End_Block = 32768;
 
 extern "C"
 {
@@ -47,25 +48,20 @@ extern "C"
 			ReadEnable = true;
 			StartBlock = 0;
 			block_flash_max = 32;
-		}
-		else if (mode == 1) { // -r
+		} else if (mode == 1) { // -r
 			block_size = 0x210;
 			ReadEnable = true;
-		}
-		else if (mode == 2) { // -R
+		} else if (mode == 2) { // -R
 			block_size = 0x200;
 			ReadEnable = true;
-		}
-		else if (mode == 3) { // -w
+		} else if (mode == 3) { // -w
 			block_size = 0x210;
 			WriteEnable = true;
-		}
-		else if (mode == 4) { // +w
+		} else if (mode == 4) { // +w
 			PatchECCEnable = true;
 			block_size = 0x210;
 			WriteEnable = true;
-		}
-		else if (mode == 5) { // -e
+		} else if (mode == 5) { // -e
 			EraseEnable = true;
 		}
 
@@ -91,6 +87,8 @@ extern "C"
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		if (EraseEnable) {
+			End_Block = block_flash_max;
+
 			for (block_flash = StartBlock; block_flash < block_flash_max; block_flash += Sfc.PageCountInBlock) {
 				FlashDataErase(block_flash);
 				//PRINT_BLOCKS;
@@ -119,7 +117,7 @@ extern "C"
 			fseek(fileW, 0L, SEEK_SET);
 
 			unsigned int File_Blocks = File_Size / block_size;
-			unsigned int End_Block = MIN(block_flash_max, File_Blocks);
+			End_Block = MIN(block_flash_max, File_Blocks);
 
 			memset(flash_xbox, 0, sizeof(flash_xbox));
 
@@ -166,6 +164,8 @@ extern "C"
 			}
 			fseek(fileR, 0L, SEEK_SET);
 
+			End_Block = block_flash_max;
+
 			addr_raw = 0; \
 			for (block_flash = StartBlock; block_flash < block_flash_max; ++block_flash) {
 				FlashDataRead(&flash_xbox[addr_raw], block_flash, block_size);
@@ -176,10 +176,12 @@ extern "C"
 
 				addr_raw += block_size;
 			}
+
+			unsigned int block_file = 0;
 			if (addr_raw) {
 				addr_raw = 0;
 				int byteWrite;
-				for (block_flash = StartBlock; block_flash < block_flash_max; ++block_flash) {
+				for (block_file = StartBlock; block_file < block_flash_max; ++block_file) {
 					do {
 						fseek(fileR, addr_raw, SEEK_SET);
 						byteWrite = fwrite((char*)&flash_xbox[addr_raw], 1, block_size, fileR);
