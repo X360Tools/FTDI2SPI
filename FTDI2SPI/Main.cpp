@@ -37,6 +37,7 @@ extern "C"
 		unsigned int block_flash_max = 2048 * size;
 
 		bool Wrong_arg = false;
+		bool FlashConfig = false;
 		bool EraseEnable = false;
 		bool ReadEnable = false;
 		bool WriteEnable = false;
@@ -44,10 +45,7 @@ extern "C"
 		string FileName = file;
 
 		if (mode == 0) { // Get Flash Config Only
-			block_size = 0x210;
-			ReadEnable = true;
-			StartBlock = 0;
-			block_flash_max = 32;
+			FlashConfig = true;
 		} else if (mode == 1) { // -r
 			block_size = 0x210;
 			ReadEnable = true;
@@ -82,6 +80,12 @@ extern "C"
 
 		if (SFC_init(flashConfig) != OK) {
 			return -4; // UNKNOWN NAND
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+
+		if (FlashConfig) {
+			return 0;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
