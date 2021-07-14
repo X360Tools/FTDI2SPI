@@ -15,5 +15,6 @@ void SetAnswerFast( void );
 void AddWriteOutBuffer( DWORD dwNumControlBitsToWrite, unsigned char pWriteControlBuffer[] );
 void AddReadOutBuffer( DWORD dwNumDataBitsToRead );
 void GetDataFromDevice(unsigned int dwNumDataBitsToRead, unsigned char ReadDataBuffer[] );
+void closeDevice();
 
 #endif

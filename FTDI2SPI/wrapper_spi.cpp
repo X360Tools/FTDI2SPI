@@ -53,7 +53,7 @@ bool spi_init( void )
   bool bPerformCommandSequence = false;
 //  FTH_LOW_HIGH_PINS HighPinsInputData;
   DWORD dwNumDataBytesToWrite = 0;
-//  FTC_CLOSE_FINAL_STATE_PINS CloseFinalStatePinsData;
+  //FTC_CLOSE_FINAL_STATE_PINS CloseFinalStatePinsData;
   DWORD dwDataWordInitValue = 0;
   DWORD dwDataWordValue = 0;
   DWORD dwWriteDataWordAddress = 0;
@@ -517,4 +517,19 @@ void spi_setGPIO( bool XXLo, bool EJLo )
 
 	dwNumBytesToSend = 0;
 	dwNumBytesToRead = 0;	
+}
+
+void closeDevice() {
+    FTC_CLOSE_FINAL_STATE_PINS CloseFinalStatePinsData;
+    CloseFinalStatePinsData.bTCKPinState = true;
+    CloseFinalStatePinsData.bTCKPinActiveState = true;
+    CloseFinalStatePinsData.bTDIPinState = true;
+    CloseFinalStatePinsData.bTDIPinActiveState = false;
+    CloseFinalStatePinsData.bTMSPinState = true;
+    CloseFinalStatePinsData.bTMSPinActiveState = false;
+
+    Status = SPI_CloseDevice(ftHandle, &CloseFinalStatePinsData);
+
+    SPI_Close(ftHandle);
+    ftHandle = 0;
 }

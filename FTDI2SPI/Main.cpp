@@ -66,6 +66,7 @@ extern "C"
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		if (!spi_init()) {
+			closeDevice();
 			return -2; // UNABLE TO INIT FTDI
 		}
 
@@ -75,16 +76,19 @@ extern "C"
 		if (((char*)&flashConfig)[0] == ((char*)&flashConfig)[1] &&
 			((char*)&flashConfig)[1] == ((char*)&flashConfig)[2] &&
 			((char*)&flashConfig)[2] == ((char*)&flashConfig)[3]) {
+			closeDevice();
 			return -3; // BAD CONNECTION TO NAND
 		}
 
 		if (SFC_init(flashConfig) != OK) {
+			closeDevice();
 			return -4; // UNKNOWN NAND
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		if (FlashConfig) {
+			closeDevice();
 			return 0;
 		}
 
@@ -98,6 +102,8 @@ extern "C"
 				//PRINT_BLOCKS;
 			}
 			//PRINT_BLOCKS;
+
+			closeDevice();
 			return 0;
 		}
 
@@ -107,12 +113,14 @@ extern "C"
 			FILE* fileW = fopen(FileName.c_str(), "rb");
 
 			if (fileW == NULL) {
+				closeDevice();
 				return -8; // NO FILE
 			}
 
 			flash_xbox = (unsigned char*)malloc(block_flash_max * 528);
 
 			if (flash_xbox == NULL) {
+				closeDevice();
 				return -9; // NO MEMORY
 			}
 
@@ -145,6 +153,8 @@ extern "C"
 
 			fclose(fileW);
 			free(flash_xbox);
+
+			closeDevice();
 			return 0;
 		}
 
@@ -153,17 +163,20 @@ extern "C"
 		else if (ReadEnable) {
 			FILE* fileR = fopen(FileName.c_str(), "wb");
 			if (fileR == NULL) {
+				closeDevice();
 				return -8; // NO FILE
 			}
 
 			flash_xbox = (unsigned char*)malloc(block_flash_max * block_size);
 
 			if (flash_xbox == NULL) {
+				closeDevice();
 				return -9; // NO MEMORY
 			}
 
 			int byteWrite = fwrite((char*)flash_xbox, 1, 1, fileR);
 			if (byteWrite != 1) {
+				closeDevice();
 				return -11; // COULDN'T OPEN FILE
 			}
 			fseek(fileR, 0L, SEEK_SET);
@@ -199,9 +212,11 @@ extern "C"
 			fclose(fileR);
 			free(flash_xbox);
 
+			closeDevice();
 			return 0;
 		}
 
+		closeDevice();
 		return -10; // NO MODE
 	}
 	__declspec(dllexport) int spiGetBlocks() {
