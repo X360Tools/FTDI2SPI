@@ -520,16 +520,18 @@ void spi_setGPIO( bool XXLo, bool EJLo )
 }
 
 void closeDevice() {
-    FTC_CLOSE_FINAL_STATE_PINS CloseFinalStatePinsData;
-    CloseFinalStatePinsData.bTCKPinState = true;
-    CloseFinalStatePinsData.bTCKPinActiveState = true;
-    CloseFinalStatePinsData.bTDIPinState = true;
-    CloseFinalStatePinsData.bTDIPinActiveState = false;
-    CloseFinalStatePinsData.bTMSPinState = true;
-    CloseFinalStatePinsData.bTMSPinActiveState = false;
+    if (ftHandle != 0) {
+        FTC_CLOSE_FINAL_STATE_PINS CloseFinalStatePinsData;
+        CloseFinalStatePinsData.bTCKPinState = true;
+        CloseFinalStatePinsData.bTCKPinActiveState = true;
+        CloseFinalStatePinsData.bTDIPinState = true;
+        CloseFinalStatePinsData.bTDIPinActiveState = false;
+        CloseFinalStatePinsData.bTMSPinState = true;
+        CloseFinalStatePinsData.bTMSPinActiveState = false;
 
-    Status = SPI_CloseDevice(ftHandle, &CloseFinalStatePinsData);
+        Status = SPI_CloseDevice(ftHandle, &CloseFinalStatePinsData);
 
-    SPI_Close(ftHandle);
-    ftHandle = 0;
+        SPI_Close(ftHandle);
+        ftHandle = 0;
+    }
 }

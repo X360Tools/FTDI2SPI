@@ -25,6 +25,8 @@ unsigned int block_flash = 0;
 unsigned int block_size;
 unsigned int flashConfig = 0;
 unsigned int End_Block = 32768;
+bool start_spi = false;
+bool stop = false;
 
 extern "C"
 {
@@ -33,7 +35,9 @@ extern "C"
 		unsigned int addr_raw = 0;
 		unsigned int StartBlock = 0;
 		unsigned int CountBlock = 0;
+		start_spi = false;
 		block_flash = 0;
+		stop = false;
 		unsigned int block_flash_max = 2048 * size;
 
 		bool Wrong_arg = false;
@@ -97,7 +101,10 @@ extern "C"
 		if (EraseEnable) {
 			End_Block = block_flash_max;
 
+			start_spi = true;
 			for (block_flash = StartBlock; block_flash < block_flash_max; block_flash += Sfc.PageCountInBlock) {
+				if (stop) break;
+
 				FlashDataErase(block_flash);
 				//PRINT_BLOCKS;
 			}
@@ -136,8 +143,11 @@ extern "C"
 			fseek(fileW, StartBlock * block_size, SEEK_SET);
 			fread((char*)flash_xbox, block_size, End_Block - StartBlock, fileW);
 
+			start_spi = true;
 			addr_raw = 0;
 			for (block_flash = StartBlock; block_flash < End_Block; ++block_flash) {
+				if (stop) break;
+
 				//if ((block_flash % 64) == 0 || block_flash == StartBlock) {
 				//	PRINT_BLOCKS;
 				//}
@@ -183,8 +193,11 @@ extern "C"
 
 			End_Block = block_flash_max;
 
+			start_spi = true;
 			addr_raw = 0; \
 			for (block_flash = StartBlock; block_flash < block_flash_max; ++block_flash) {
+				if (stop) break;
+
 				FlashDataRead(&flash_xbox[addr_raw], block_flash, block_size);
 
 				//if ((block_flash % 64) == 0 && (block_flash != 0)) {
@@ -192,6 +205,11 @@ extern "C"
 				//}
 
 				addr_raw += block_size;
+			}
+
+			if (stop) {
+				closeDevice();
+				return -1;
 			}
 
 			unsigned int block_file = 0;
@@ -220,10 +238,18 @@ extern "C"
 		return -10; // NO MODE
 	}
 	__declspec(dllexport) int spiGetBlocks() {
-		return block_flash / 32; // Decimal not hex(block_flash/32)
+		if (start_spi) {
+			return block_flash / 32; // Decimal not hex
+		}
+		else {
+			return -1;
+		}
 	}
 	__declspec(dllexport) int spiGetConfig() {
 		return flashConfig; // Decimal not hex
+	}
+	__declspec(dllexport) void spiStop() {
+		if (start_spi) stop = true;
 	}
 }
 
