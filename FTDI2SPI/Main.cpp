@@ -111,7 +111,9 @@ extern "C"
 			//PRINT_BLOCKS;
 
 			closeDevice();
-			return 0;
+
+			if (stop) return -1;
+			else return 0;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +167,9 @@ extern "C"
 			free(flash_xbox);
 
 			closeDevice();
-			return 0;
+
+			if (stop) return -1;
+			else return 0;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -209,6 +213,8 @@ extern "C"
 
 			if (stop) {
 				closeDevice();
+				fclose(fileR);
+				free(flash_xbox);
 				return -1;
 			}
 
