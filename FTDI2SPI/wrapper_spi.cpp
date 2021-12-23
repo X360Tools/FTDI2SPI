@@ -375,7 +375,7 @@ void GetDataFromDevice(unsigned int dwNumBytesToRead, unsigned char ReadDataBuff
 void DisableSPIChip( void )
 {
 	AddByteToOutputBuffer(SET_LOW_BYTE_DATA_BITS_CMD, false);
-	dwLowPinsValue = (dwLowPinsValue | CHIP_SELECT_PIN); // set CS to low
+	dwLowPinsValue = (dwLowPinsValue | CHIP_SELECT_PIN); // set CS to high
 	// set SK, DO, CS and GPIOL1-4 as output, set D1 as input
 	AddByteToOutputBuffer(dwLowPinsValue, FALSE);
 	AddByteToOutputBuffer('\xFB', false);

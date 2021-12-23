@@ -30,15 +30,18 @@ bool stop = false;
 
 extern "C"
 {
-	__declspec(dllexport) int spi(int mode, int size, char* file) {
+	__declspec(dllexport) int spi(int mode, int size, char* file, int startblock, int length) {
 		unsigned char* flash_xbox;
 		unsigned int addr_raw = 0;
-		unsigned int StartBlock = 0;
-		unsigned int CountBlock = 0;
+
+		unsigned int StartBlock = startblock * 32;
+		unsigned int block_flash_max = 2048 * size;
+
+		if (length > 0) block_flash_max = StartBlock + (length * 32);
+
 		start_spi = false;
 		block_flash = 0;
 		stop = false;
-		unsigned int block_flash_max = 2048 * size;
 
 		bool Wrong_arg = false;
 		bool FlashConfig = false;
@@ -142,7 +145,7 @@ extern "C"
 
 			memset(flash_xbox, 0, sizeof(flash_xbox));
 
-			fseek(fileW, StartBlock * block_size, SEEK_SET);
+			fseek(fileW, 0, SEEK_SET);
 			fread((char*)flash_xbox, block_size, End_Block - StartBlock, fileW);
 
 			start_spi = true;
@@ -198,7 +201,7 @@ extern "C"
 			End_Block = block_flash_max;
 
 			start_spi = true;
-			addr_raw = 0; \
+			addr_raw = 0;
 			for (block_flash = StartBlock; block_flash < block_flash_max; ++block_flash) {
 				if (stop) break;
 
